@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Bookmarks</title>
+<style>
+  :root {
+    --bg: transparent;
+    --surface: rgba(255, 255, 255, 0.06);
+    --surface-hover: rgba(255, 255, 255, 0.12);
+    --border: rgba(255, 255, 255, 0.1);
+    --text: rgba(255, 255, 255, 0.9);
+    --text-muted: rgba(255, 255, 255, 0.45);
+    --accent: #4a9eff;
+    --accent-hover: #6eb3ff;
+    --danger: rgba(255, 80, 80, 0.7);
+    --danger-hover: rgba(255, 80, 80, 1);
+    --radius: 8px;
+    --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+  }
+
+  @media (prefers-color-scheme: light) {
+    :root {
+      --surface: rgba(0, 0, 0, 0.05);
+      --surface-hover: rgba(0, 0, 0, 0.1);
+      --border: rgba(0, 0, 0, 0.1);
+      --text: rgba(0, 0, 0, 0.85);
+      --text-muted: rgba(0, 0, 0, 0.4);
+      --danger: rgba(200, 40, 40, 0.7);
+      --danger-hover: rgba(200, 40, 40, 1);
+    }
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 13px;
+    line-height: 1.5;
+    padding: 12px;
+    min-height: 100vh;
+  }
+
+  /* ── Header ── */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  .header h1 {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .btn-add {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: var(--font);
+    transition: background 0.15s;
+  }
+
+  .btn-add:hover {
+    background: var(--accent-hover);
+  }
+
+  .btn-add svg {
+    flex-shrink: 0;
+  }
+
+  /* ── Add with label row ── */
+  .add-row {
+    display: none;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+
+  .add-row.visible {
+    display: flex;
+  }
+
+  .add-row input {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 12px;
+    padding: 5px 8px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .add-row input:focus {
+    border-color: var(--accent);
+  }
+
+  .add-row input::placeholder {
+    color: var(--text-muted);
+  }
+
+  .btn-confirm {
+    background: var(--accent);
+    border: none;
+    border-radius: 6px;
+    color: #fff;
+    cursor: pointer;
+    font-family: var(--font);
+    font-size: 12px;
+    font-weight: 500;
+    padding: 5px 10px;
+    transition: background 0.15s;
+    white-space: nowrap;
+  }
+
+  .btn-confirm:hover {
+    background: var(--accent-hover);
+  }
+
+  .btn-cancel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-family: var(--font);
+    font-size: 12px;
+    padding: 5px 8px;
+    transition: background 0.15s;
+  }
+
+  .btn-cancel:hover {
+    background: var(--surface-hover);
+  }
+
+  /* ── Bookmark list ── */
+  .list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .empty {
+    color: var(--text-muted);
+    font-size: 12px;
+    text-align: center;
+    padding: 32px 16px;
+    line-height: 1.8;
+  }
+
+  .empty .hint {
+    font-size: 11px;
+    margin-top: 8px;
+    opacity: 0.7;
+  }
+
+  /* ── Bookmark item ── */
+  .item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: var(--radius);
+    background: var(--surface);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: background 0.12s, border-color 0.12s;
+    position: relative;
+  }
+
+  .item:hover {
+    background: var(--surface-hover);
+    border-color: var(--border);
+  }
+
+  .item-index {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-muted);
+    min-width: 14px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .item-time {
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+
+  .item-label {
+    flex: 1;
+    font-size: 12px;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .item-label-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--accent);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 12px;
+    outline: none;
+    padding: 0;
+  }
+
+  .item-actions {
+    display: none;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+
+  .item:hover .item-actions {
+    display: flex;
+  }
+
+  .btn-icon {
+    background: none;
+    border: none;
+    border-radius: 4px;
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 22px;
+    width: 22px;
+    transition: color 0.12s, background 0.12s;
+    padding: 0;
+  }
+
+  .btn-icon:hover {
+    background: var(--surface-hover);
+    color: var(--text);
+  }
+
+  .btn-icon.danger:hover {
+    color: var(--danger-hover);
+  }
+
+  /* ── Footer hint ── */
+  .footer {
+    margin-top: 16px;
+    color: var(--text-muted);
+    font-size: 10px;
+    line-height: 1.8;
+    border-top: 1px solid var(--border);
+    padding-top: 10px;
+  }
+
+  .footer kbd {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    font-family: var(--font);
+    font-size: 10px;
+    padding: 1px 4px;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Bookmarks</h1>
+  <button class="btn-add" id="btnAdd">
+    <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor">
+      <path d="M5 1v8M1 5h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+    Add
+  </button>
+</div>
+
+<div class="add-row" id="addRow">
+  <input id="labelInput" type="text" placeholder="Label (optional)" maxlength="80" />
+  <button class="btn-confirm" id="btnConfirm">Add</button>
+  <button class="btn-cancel" id="btnCancel">Cancel</button>
+</div>
+
+<div class="list" id="list"></div>
+
+<div class="footer">
+  <kbd>b</kbd> add bookmark &nbsp;·&nbsp; <kbd>1</kbd>–<kbd>9</kbd> jump to bookmark<br/>
+  Double-click a label to rename it
+</div>
+
+<script>
+  let bookmarks = [];
+
+  // ── Communication ──────────────────────────────────────────────────────────
+
+  iina.onMessage("update", ({ bookmarks: bms }) => {
+    bookmarks = bms || [];
+    render();
+  });
+
+  // Signal to main.js that the webview is ready
+  iina.postMessage("ready", {});
+
+  // ── Add bookmark ───────────────────────────────────────────────────────────
+
+  const addRow = document.getElementById("addRow");
+  const labelInput = document.getElementById("labelInput");
+
+  document.getElementById("btnAdd").addEventListener("click", () => {
+    addRow.classList.add("visible");
+    labelInput.focus();
+  });
+
+  document.getElementById("btnConfirm").addEventListener("click", commitAdd);
+  document.getElementById("btnCancel").addEventListener("click", cancelAdd);
+
+  labelInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") commitAdd();
+    if (e.key === "Escape") cancelAdd();
+  });
+
+  function commitAdd() {
+    iina.postMessage("add", { label: labelInput.value.trim() });
+    cancelAdd();
+  }
+
+  function cancelAdd() {
+    addRow.classList.remove("visible");
+    labelInput.value = "";
+  }
+
+  // ── Render ─────────────────────────────────────────────────────────────────
+
+  function render() {
+    const list = document.getElementById("list");
+
+    if (bookmarks.length === 0) {
+      list.innerHTML = `
+        <div class="empty">
+          No bookmarks yet
+          <div class="hint">Press <kbd>b</kbd> while watching to add one</div>
+        </div>`;
+      return;
+    }
+
+    list.innerHTML = "";
+    bookmarks.forEach((bm, idx) => {
+      const item = document.createElement("div");
+      item.className = "item";
+      item.dataset.id = bm.id;
+
+      item.innerHTML = `
+        <span class="item-index">${idx < 9 ? idx + 1 : "·"}</span>
+        <span class="item-time">${formatTime(bm.time)}</span>
+        <span class="item-label" title="${esc(bm.label)}">${esc(bm.label)}</span>
+        <div class="item-actions">
+          <button class="btn-icon" title="Rename" data-action="rename">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round">
+              <path d="M2 9.5h1.5L9 4 8 3 2.5 8.5V9.5z"/><path d="M7.5 3.5l1-1"/>
+            </svg>
+          </button>
+          <button class="btn-icon danger" title="Delete" data-action="delete">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round">
+              <path d="M2.5 3.5h7M5 3.5v-1h2v1M4.5 5v4M7.5 5v4M3 3.5l.5 6h5l.5-6"/>
+            </svg>
+          </button>
+        </div>`;
+
+      // Click item body to jump
+      item.addEventListener("click", (e) => {
+        if (e.target.closest(".item-actions")) return;
+        iina.postMessage("jump", { time: bm.time });
+      });
+
+      // Double-click label to rename inline
+      const labelEl = item.querySelector(".item-label");
+      labelEl.addEventListener("dblclick", (e) => {
+        e.stopPropagation();
+        startRename(item, bm, labelEl);
+      });
+
+      // Action buttons
+      item.querySelector("[data-action='rename']").addEventListener("click", (e) => {
+        e.stopPropagation();
+        startRename(item, bm, labelEl);
+      });
+
+      item.querySelector("[data-action='delete']").addEventListener("click", (e) => {
+        e.stopPropagation();
+        iina.postMessage("delete", { id: bm.id });
+      });
+
+      list.appendChild(item);
+    });
+  }
+
+  function startRename(item, bm, labelEl) {
+    const input = document.createElement("input");
+    input.className = "item-label-input";
+    input.value = bm.label;
+    labelEl.replaceWith(input);
+    input.focus();
+    input.select();
+
+    function commit() {
+      const newLabel = input.value.trim();
+      if (newLabel && newLabel !== bm.label) {
+        iina.postMessage("rename", { id: bm.id, label: newLabel });
+      } else {
+        input.replaceWith(labelEl);
+      }
+    }
+
+    input.addEventListener("blur", commit);
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") { e.preventDefault(); input.blur(); }
+      if (e.key === "Escape") { input.removeEventListener("blur", commit); input.replaceWith(labelEl); }
+    });
+  }
+
+  // ── Utilities ──────────────────────────────────────────────────────────────
+
+  function formatTime(seconds) {
+    const s = Math.floor(seconds);
+    const h = Math.floor(s / 3600);
+    const m = Math.floor((s % 3600) / 60);
+    const sec = s % 60;
+    if (h > 0) {
+      return `${h}:${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
+    }
+    return `${m}:${String(sec).padStart(2, "0")}`;
+  }
+
+  function esc(str) {
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+</script>
+</body>
+</html>

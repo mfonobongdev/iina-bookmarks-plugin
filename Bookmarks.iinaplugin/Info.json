@@ -1,0 +1,15 @@
+{
+  "name": "Bookmarks",
+  "identifier": "com.mfonobongdev.iina.bookmarks",
+  "version": "1.0.0",
+  "entry": "main.js",
+  "sidebarView": {
+    "title": "Bookmarks"
+  },
+  "permissions": [],
+  "preferenceDefaults": {
+    "bookmarks": "{}"
+  },
+  "ghRepo": "mfonobongdev/iina-bookmarks-plugin",
+  "ghVersion": 1
+}
