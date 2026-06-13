@@ -2,9 +2,13 @@
   "name": "Bookmarks",
   "identifier": "com.mfonobongdev.iina.bookmarks",
   "version": "1.0.0",
+  "author": {
+    "name": "Mfonobong Etuk",
+    "url": "https://github.com/mfonobongdev"
+  },
   "entry": "main.js",
-  "sidebarView": {
-    "title": "Bookmarks"
+  "sidebarTab": {
+    "name": "Bookmarks"
   },
   "permissions": [],
   "preferenceDefaults": {
