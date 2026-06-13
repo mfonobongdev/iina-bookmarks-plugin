@@ -1,5 +1,13 @@
 const { core, mpv, input, preferences, sidebar, event } = iina;
-const overlay = iina.overlay || null;
+
+// Sidebar must load first — overlay is optional and isolated so any error there
+// cannot block the sidebar from running.
+sidebar.loadFile("sidebar.html");
+
+let overlay = null;
+try {
+  overlay = iina.overlay;
+} catch (_) {}
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -123,12 +131,12 @@ sidebar.onMessage("delete", ({ id }) => deleteBookmark(id));
 sidebar.onMessage("jump", ({ time }) => jumpTo(time));
 sidebar.onMessage("rename", ({ id, label }) => renameBookmark(id, label));
 
-// ─── Boot ─────────────────────────────────────────────────────────────────────
+// ─── Overlay boot (optional) ──────────────────────────────────────────────────
 
-sidebar.loadFile("sidebar.html");
-
-if (overlay) {
-  overlay.onMessage("ready", () => pushAll());
-  overlay.loadFile("overlay.html");
-  overlay.show();
-}
+try {
+  if (overlay) {
+    overlay.onMessage("ready", () => pushAll());
+    overlay.loadFile("overlay.html");
+    overlay.show();
+  }
+} catch (_) {}

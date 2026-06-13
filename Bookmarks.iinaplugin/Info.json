@@ -1,7 +1,7 @@
 {
   "name": "Bookmarks",
   "identifier": "com.mfonobongdev.iina.bookmarks",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "author": {
     "name": "Mfonobong Etuk",
     "url": "https://github.com/mfonobongdev"
@@ -15,5 +15,5 @@
     "bookmarks": "{}"
   },
   "ghRepo": "mfonobongdev/iina-bookmarks-plugin",
-  "ghVersion": 4
+  "ghVersion": 5
 }
