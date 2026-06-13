@@ -1,4 +1,5 @@
-const { core, mpv, input, preferences, sidebar, overlay, event } = iina;
+const { core, mpv, input, preferences, sidebar, event } = iina;
+const overlay = iina.overlay || null;
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -42,7 +43,7 @@ function pushAll() {
   const bookmarks = getBookmarksForCurrent();
   const duration = core.status.duration;
   sidebar.postMessage("update", { bookmarks });
-  overlay.postMessage("update", { bookmarks, duration });
+  if (overlay) overlay.postMessage("update", { bookmarks, duration });
 }
 
 // ─── Actions ──────────────────────────────────────────────────────────────────
@@ -122,12 +123,12 @@ sidebar.onMessage("delete", ({ id }) => deleteBookmark(id));
 sidebar.onMessage("jump", ({ time }) => jumpTo(time));
 sidebar.onMessage("rename", ({ id, label }) => renameBookmark(id, label));
 
-// ─── Overlay messages ─────────────────────────────────────────────────────────
-
-overlay.onMessage("ready", () => pushAll());
-
 // ─── Boot ─────────────────────────────────────────────────────────────────────
 
 sidebar.loadFile("sidebar.html");
-overlay.loadFile("overlay.html");
-overlay.show();
+
+if (overlay) {
+  overlay.onMessage("ready", () => pushAll());
+  overlay.loadFile("overlay.html");
+  overlay.show();
+}
