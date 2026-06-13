@@ -45,8 +45,8 @@ function pushToSidebar() {
 // ─── Actions ──────────────────────────────────────────────────────────────────
 
 function addBookmark(label) {
-  const time = mpv.get("time-pos");
-  if (time == null) return;
+  const time = core.status.position;
+  if (time == null || core.status.idle) return;
 
   const key = getCurrentKey();
   if (!key) return;
@@ -56,8 +56,8 @@ function addBookmark(label) {
 
   const bm = {
     id: Date.now(),
-    time: Number(time),
-    label: label || formatTime(Number(time)),
+    time: time,
+    label: label || formatTime(time),
   };
 
   all[key].push(bm);
@@ -88,13 +88,16 @@ function renameBookmark(id, label) {
 }
 
 function jumpTo(time) {
-  mpv.set("time-pos", time);
+  core.seekTo(time);
 }
 
 // ─── Keyboard shortcuts ───────────────────────────────────────────────────────
 
 // b — add a bookmark at the current playback position
-input.onKeyDown("b", () => addBookmark());
+input.onKeyDown("b", () => {
+  addBookmark();
+  return true;
+});
 
 // 1–9 — jump to the nth bookmark for the current file
 for (let i = 1; i <= 9; i++) {
@@ -104,12 +107,12 @@ for (let i = 1; i <= 9; i++) {
       jumpTo(bm.time);
       core.osd(`Jumped to bookmark ${i}: ${bm.label}`);
     }
+    return true;
   });
 }
 
 // ─── Events ───────────────────────────────────────────────────────────────────
 
-// Refresh sidebar whenever a new file starts playing
 event.on("mpv.file-loaded", () => pushToSidebar());
 
 // ─── Sidebar messages ─────────────────────────────────────────────────────────
@@ -122,4 +125,4 @@ sidebar.onMessage("rename", ({ id, label }) => renameBookmark(id, label));
 
 // ─── Boot ─────────────────────────────────────────────────────────────────────
 
-sidebar.loadHTML("sidebar.html");
+sidebar.loadFile("sidebar.html");
