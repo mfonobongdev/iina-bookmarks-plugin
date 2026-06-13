@@ -1,0 +1,19 @@
+{
+  "name": "Bookmarks",
+  "identifier": "com.mfonobongdev.iina.bookmarks",
+  "version": "1.0.0",
+  "author": {
+    "name": "Mfonobong Etuk",
+    "url": "https://github.com/mfonobongdev"
+  },
+  "entry": "main.js",
+  "sidebarTab": {
+    "name": "Bookmarks"
+  },
+  "permissions": [],
+  "preferenceDefaults": {
+    "bookmarks": "{}"
+  },
+  "ghRepo": "mfonobongdev/iina-bookmarks-plugin",
+  "ghVersion": 2
+}
