@@ -121,7 +121,13 @@ for (let i = 1; i <= 9; i++) {
 
 // ─── Events ───────────────────────────────────────────────────────────────────
 
-event.on("iina.window-loaded", () => pushAll());
+// On restart the window isn't ready when main.js first runs, so loadFile at
+// the top of the file is a no-op. Re-call it here once the window is ready.
+event.on("iina.window-loaded", () => {
+  sidebar.loadFile("sidebar.html");
+  pushAll();
+});
+
 event.on("iina.file-loaded", () => pushAll());
 
 // ─── Sidebar messages ─────────────────────────────────────────────────────────
