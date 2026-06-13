@@ -1,4 +1,4 @@
-const { core, mpv, input, preferences, sidebar, event } = iina;
+const { core, mpv, input, preferences, sidebar, overlay, event } = iina;
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -36,18 +36,19 @@ function getBookmarksForCurrent() {
   return all[getCurrentKey()] || [];
 }
 
-// ─── Sidebar sync ─────────────────────────────────────────────────────────────
+// ─── Sync ─────────────────────────────────────────────────────────────────────
 
-function pushToSidebar() {
-  sidebar.postMessage("update", { bookmarks: getBookmarksForCurrent() });
+function pushAll() {
+  const bookmarks = getBookmarksForCurrent();
+  const duration = core.status.duration;
+  sidebar.postMessage("update", { bookmarks });
+  overlay.postMessage("update", { bookmarks, duration });
 }
 
 // ─── Actions ──────────────────────────────────────────────────────────────────
 
 function addBookmark(label) {
-  const time = core.status.position;
-  if (time == null || core.status.idle) return;
-
+  const time = mpv.getNumber("time-pos");
   const key = getCurrentKey();
   if (!key) return;
 
@@ -64,8 +65,8 @@ function addBookmark(label) {
   all[key].sort((a, b) => a.time - b.time);
   saveAllBookmarks(all);
 
-  core.osd(`Bookmark added: ${bm.label}`);
-  pushToSidebar();
+  core.osd(`Bookmark: ${bm.label}`);
+  pushAll();
 }
 
 function deleteBookmark(id) {
@@ -74,7 +75,7 @@ function deleteBookmark(id) {
   if (!all[key]) return;
   all[key] = all[key].filter((b) => b.id !== id);
   saveAllBookmarks(all);
-  pushToSidebar();
+  pushAll();
 }
 
 function renameBookmark(id, label) {
@@ -84,7 +85,7 @@ function renameBookmark(id, label) {
   if (!bm) return;
   bm.label = label;
   saveAllBookmarks(all);
-  pushToSidebar();
+  pushAll();
 }
 
 function jumpTo(time) {
@@ -93,19 +94,17 @@ function jumpTo(time) {
 
 // ─── Keyboard shortcuts ───────────────────────────────────────────────────────
 
-// b — add a bookmark at the current playback position
 input.onKeyDown("b", () => {
   addBookmark();
   return true;
 });
 
-// 1–9 — jump to the nth bookmark for the current file
 for (let i = 1; i <= 9; i++) {
   input.onKeyDown(String(i), () => {
     const bm = getBookmarksForCurrent()[i - 1];
     if (bm) {
       jumpTo(bm.time);
-      core.osd(`Jumped to bookmark ${i}: ${bm.label}`);
+      core.osd(`→ ${bm.label}`);
     }
     return true;
   });
@@ -113,16 +112,22 @@ for (let i = 1; i <= 9; i++) {
 
 // ─── Events ───────────────────────────────────────────────────────────────────
 
-event.on("mpv.file-loaded", () => pushToSidebar());
+event.on("mpv.file-loaded", () => pushAll());
 
 // ─── Sidebar messages ─────────────────────────────────────────────────────────
 
-sidebar.onMessage("ready", () => pushToSidebar());
-sidebar.onMessage("add", ({ label }) => addBookmark(label || undefined));
+sidebar.onMessage("ready", () => pushAll());
+sidebar.onMessage("add", () => addBookmark());
 sidebar.onMessage("delete", ({ id }) => deleteBookmark(id));
 sidebar.onMessage("jump", ({ time }) => jumpTo(time));
 sidebar.onMessage("rename", ({ id, label }) => renameBookmark(id, label));
 
+// ─── Overlay messages ─────────────────────────────────────────────────────────
+
+overlay.onMessage("ready", () => pushAll());
+
 // ─── Boot ─────────────────────────────────────────────────────────────────────
 
 sidebar.loadFile("sidebar.html");
+overlay.loadFile("overlay.html");
+overlay.show();

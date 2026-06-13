@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: transparent;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  /* Track sits at the very bottom of the video frame */
+  #track {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .marker {
+    position: absolute;
+    bottom: 0;
+    width: 2px;
+    height: 14px;
+    background: #4a9eff;
+    border-radius: 2px 2px 0 0;
+    transform: translateX(-50%);
+    box-shadow: 0 0 4px rgba(74, 158, 255, 0.6);
+    transition: left 0.15s ease;
+  }
+</style>
+</head>
+<body>
+<div id="track"></div>
+<script>
+  iina.onMessage("update", ({ bookmarks, duration }) => {
+    const track = document.getElementById("track");
+    track.innerHTML = "";
+
+    if (!duration || !bookmarks || bookmarks.length === 0) return;
+
+    bookmarks.forEach((bm) => {
+      const pct = Math.min(Math.max(bm.time / duration, 0), 1) * 100;
+      const marker = document.createElement("div");
+      marker.className = "marker";
+      marker.style.left = `${pct}%`;
+      marker.title = bm.label;
+      track.appendChild(marker);
+    });
+  });
+
+  iina.postMessage("ready", {});
+</script>
+</body>
+</html>

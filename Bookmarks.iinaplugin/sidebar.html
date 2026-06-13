@@ -6,7 +6,6 @@
 <title>Bookmarks</title>
 <style>
   :root {
-    --bg: transparent;
     --surface: rgba(255, 255, 255, 0.06);
     --surface-hover: rgba(255, 255, 255, 0.12);
     --border: rgba(255, 255, 255, 0.1);
@@ -14,7 +13,6 @@
     --text-muted: rgba(255, 255, 255, 0.45);
     --accent: #4a9eff;
     --accent-hover: #6eb3ff;
-    --danger: rgba(255, 80, 80, 0.7);
     --danger-hover: rgba(255, 80, 80, 1);
     --radius: 8px;
     --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
@@ -27,25 +25,19 @@
       --border: rgba(0, 0, 0, 0.1);
       --text: rgba(0, 0, 0, 0.85);
       --text-muted: rgba(0, 0, 0, 0.4);
-      --danger: rgba(200, 40, 40, 0.7);
       --danger-hover: rgba(200, 40, 40, 1);
     }
   }
 
-  * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
-    background: var(--bg);
+    background: transparent;
     color: var(--text);
     font-family: var(--font);
     font-size: 13px;
     line-height: 1.5;
     padding: 12px;
-    min-height: 100vh;
   }
 
   /* ── Header ── */
@@ -80,86 +72,10 @@
     transition: background 0.15s;
   }
 
-  .btn-add:hover {
-    background: var(--accent-hover);
-  }
+  .btn-add:hover { background: var(--accent-hover); }
 
-  .btn-add svg {
-    flex-shrink: 0;
-  }
-
-  /* ── Add with label row ── */
-  .add-row {
-    display: none;
-    gap: 6px;
-    margin-bottom: 12px;
-  }
-
-  .add-row.visible {
-    display: flex;
-  }
-
-  .add-row input {
-    flex: 1;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    color: var(--text);
-    font-family: var(--font);
-    font-size: 12px;
-    padding: 5px 8px;
-    outline: none;
-    transition: border-color 0.15s;
-  }
-
-  .add-row input:focus {
-    border-color: var(--accent);
-  }
-
-  .add-row input::placeholder {
-    color: var(--text-muted);
-  }
-
-  .btn-confirm {
-    background: var(--accent);
-    border: none;
-    border-radius: 6px;
-    color: #fff;
-    cursor: pointer;
-    font-family: var(--font);
-    font-size: 12px;
-    font-weight: 500;
-    padding: 5px 10px;
-    transition: background 0.15s;
-    white-space: nowrap;
-  }
-
-  .btn-confirm:hover {
-    background: var(--accent-hover);
-  }
-
-  .btn-cancel {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    color: var(--text-muted);
-    cursor: pointer;
-    font-family: var(--font);
-    font-size: 12px;
-    padding: 5px 8px;
-    transition: background 0.15s;
-  }
-
-  .btn-cancel:hover {
-    background: var(--surface-hover);
-  }
-
-  /* ── Bookmark list ── */
-  .list {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
+  /* ── List ── */
+  .list { display: flex; flex-direction: column; gap: 4px; }
 
   .empty {
     color: var(--text-muted);
@@ -169,13 +85,7 @@
     line-height: 1.8;
   }
 
-  .empty .hint {
-    font-size: 11px;
-    margin-top: 8px;
-    opacity: 0.7;
-  }
-
-  /* ── Bookmark item ── */
+  /* ── Item ── */
   .item {
     display: flex;
     align-items: center;
@@ -186,7 +96,6 @@
     border: 1px solid transparent;
     cursor: pointer;
     transition: background 0.12s, border-color 0.12s;
-    position: relative;
   }
 
   .item:hover {
@@ -239,9 +148,7 @@
     flex-shrink: 0;
   }
 
-  .item:hover .item-actions {
-    display: flex;
-  }
+  .item:hover .item-actions { display: flex; }
 
   .btn-icon {
     background: none;
@@ -258,16 +165,10 @@
     padding: 0;
   }
 
-  .btn-icon:hover {
-    background: var(--surface-hover);
-    color: var(--text);
-  }
+  .btn-icon:hover { background: var(--surface-hover); color: var(--text); }
+  .btn-icon.danger:hover { color: var(--danger-hover); }
 
-  .btn-icon.danger:hover {
-    color: var(--danger-hover);
-  }
-
-  /* ── Footer hint ── */
+  /* ── Footer ── */
   .footer {
     margin-top: 16px;
     color: var(--text-muted);
@@ -292,24 +193,18 @@
 <div class="header">
   <h1>Bookmarks</h1>
   <button class="btn-add" id="btnAdd">
-    <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor">
+    <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
       <path d="M5 1v8M1 5h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
     </svg>
     Add
   </button>
 </div>
 
-<div class="add-row" id="addRow">
-  <input id="labelInput" type="text" placeholder="Label (optional)" maxlength="80" />
-  <button class="btn-confirm" id="btnConfirm">Add</button>
-  <button class="btn-cancel" id="btnCancel">Cancel</button>
-</div>
-
 <div class="list" id="list"></div>
 
 <div class="footer">
-  <kbd>b</kbd> add bookmark &nbsp;·&nbsp; <kbd>1</kbd>–<kbd>9</kbd> jump to bookmark<br/>
-  Double-click a label to rename it
+  <kbd>b</kbd> add bookmark &nbsp;·&nbsp; <kbd>1</kbd>–<kbd>9</kbd> jump<br/>
+  Double-click a label to rename
 </div>
 
 <script>
@@ -322,36 +217,13 @@
     render();
   });
 
-  // Signal to main.js that the webview is ready
   iina.postMessage("ready", {});
 
-  // ── Add bookmark ───────────────────────────────────────────────────────────
-
-  const addRow = document.getElementById("addRow");
-  const labelInput = document.getElementById("labelInput");
+  // ── Add: single click, no form, timestamp label auto-generated in main.js ──
 
   document.getElementById("btnAdd").addEventListener("click", () => {
-    addRow.classList.add("visible");
-    labelInput.focus();
+    iina.postMessage("add", {});
   });
-
-  document.getElementById("btnConfirm").addEventListener("click", commitAdd);
-  document.getElementById("btnCancel").addEventListener("click", cancelAdd);
-
-  labelInput.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") commitAdd();
-    if (e.key === "Escape") cancelAdd();
-  });
-
-  function commitAdd() {
-    iina.postMessage("add", { label: labelInput.value.trim() });
-    cancelAdd();
-  }
-
-  function cancelAdd() {
-    addRow.classList.remove("visible");
-    labelInput.value = "";
-  }
 
   // ── Render ─────────────────────────────────────────────────────────────────
 
@@ -359,19 +231,15 @@
     const list = document.getElementById("list");
 
     if (bookmarks.length === 0) {
-      list.innerHTML = `
-        <div class="empty">
-          No bookmarks yet
-          <div class="hint">Press <kbd>b</kbd> while watching to add one</div>
-        </div>`;
+      list.innerHTML = `<div class="empty">No bookmarks yet<br/><span style="font-size:11px;opacity:.6">Press <kbd style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:3px;padding:1px 4px;font-size:10px">b</kbd> or click Add</span></div>`;
       return;
     }
 
     list.innerHTML = "";
+
     bookmarks.forEach((bm, idx) => {
       const item = document.createElement("div");
       item.className = "item";
-      item.dataset.id = bm.id;
 
       item.innerHTML = `
         <span class="item-index">${idx < 9 ? idx + 1 : "·"}</span>
@@ -390,20 +258,19 @@
           </button>
         </div>`;
 
-      // Click item body to jump
+      // Click to jump
       item.addEventListener("click", (e) => {
         if (e.target.closest(".item-actions")) return;
         iina.postMessage("jump", { time: bm.time });
       });
 
-      // Double-click label to rename inline
+      // Double-click label to rename
       const labelEl = item.querySelector(".item-label");
       labelEl.addEventListener("dblclick", (e) => {
         e.stopPropagation();
         startRename(item, bm, labelEl);
       });
 
-      // Action buttons
       item.querySelector("[data-action='rename']").addEventListener("click", (e) => {
         e.stopPropagation();
         startRename(item, bm, labelEl);
@@ -449,18 +316,12 @@
     const h = Math.floor(s / 3600);
     const m = Math.floor((s % 3600) / 60);
     const sec = s % 60;
-    if (h > 0) {
-      return `${h}:${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
-    }
+    if (h > 0) return `${h}:${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
     return `${m}:${String(sec).padStart(2, "0")}`;
   }
 
   function esc(str) {
-    return String(str)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;");
+    return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
   }
 </script>
 </body>
