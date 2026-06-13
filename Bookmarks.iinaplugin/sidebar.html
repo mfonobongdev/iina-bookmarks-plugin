@@ -212,17 +212,12 @@
 
   // ── Communication ──────────────────────────────────────────────────────────
 
-  // The sidebar WebView may persist between IINA sessions while the plugin
-  // script restarts. Keep pinging "ready" until main.js responds with "update"
-  // so restarts don't leave the sidebar stale.
-  let synced = false;
-  const pingInterval = setInterval(() => {
-    if (!synced) iina.postMessage("ready", {});
-  }, 800);
+  // The sidebar WebView persists between IINA sessions while the plugin script
+  // restarts fresh. Ping "ready" on an interval forever so the sidebar
+  // re-syncs within 2s of any restart, regardless of timing.
+  setInterval(() => iina.postMessage("ready", {}), 2000);
 
   iina.onMessage("update", ({ bookmarks: bms }) => {
-    synced = true;
-    clearInterval(pingInterval);
     bookmarks = bms || [];
     render();
   });

@@ -121,7 +121,8 @@ for (let i = 1; i <= 9; i++) {
 
 // ─── Events ───────────────────────────────────────────────────────────────────
 
-event.on("mpv.file-loaded", () => pushAll());
+event.on("iina.window-loaded", () => pushAll());
+event.on("iina.file-loaded", () => pushAll());
 
 // ─── Sidebar messages ─────────────────────────────────────────────────────────
 
