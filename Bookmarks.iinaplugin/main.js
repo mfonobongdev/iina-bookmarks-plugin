@@ -102,6 +102,20 @@ input.onKeyDown("b", () => {
   return true;
 });
 
+// Cycle: jump to the first bookmark after the current position, wrapping to
+// the first bookmark when past the last one. Position-based (not a stored
+// index) so it stays correct after manual seeks. The 0.5s margin keeps a
+// just-jumped-to bookmark from matching itself.
+input.onKeyDown("n", () => {
+  const bookmarks = getBookmarksForCurrent();
+  if (bookmarks.length === 0) return true;
+  const pos = mpv.getNumber("time-pos") || 0;
+  const next = bookmarks.find((b) => b.time > pos + 0.5) || bookmarks[0];
+  jumpTo(next.time);
+  core.osd(`→ ${next.label}`);
+  return true;
+});
+
 for (let i = 1; i <= 9; i++) {
   input.onKeyDown(String(i), () => {
     const bm = getBookmarksForCurrent()[i - 1];
