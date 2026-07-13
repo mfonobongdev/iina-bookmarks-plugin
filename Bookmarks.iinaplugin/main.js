@@ -25,6 +25,9 @@ function getAllBookmarks() {
 
 function saveAllBookmarks(all) {
   preferences.set("bookmarks", JSON.stringify(all));
+  // set() only updates IINA's in-memory store; sync() writes it to disk.
+  // Without it, all bookmarks are lost when the app quits.
+  preferences.sync();
 }
 
 function getCurrentKey() {
