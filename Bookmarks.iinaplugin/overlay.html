@@ -23,16 +23,37 @@
     background: rgba(255, 255, 255, 0.08);
   }
 
+  /* The marker itself is a wide invisible hit target (IINA's overlay hit test
+     uses elementFromPoint, so it must have pointer-events enabled); the visible
+     2px bar is drawn with ::after. */
   .marker {
     position: absolute;
     bottom: 0;
+    width: 14px;
+    height: 20px;
+    transform: translateX(-50%);
+    transition: left 0.15s ease;
+    pointer-events: auto;
+    cursor: pointer;
+  }
+
+  .marker::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
     width: 2px;
     height: 14px;
     background: #4a9eff;
     border-radius: 2px 2px 0 0;
-    transform: translateX(-50%);
     box-shadow: 0 0 4px rgba(74, 158, 255, 0.6);
-    transition: left 0.15s ease;
+    transition: height 0.12s ease, width 0.12s ease;
+  }
+
+  .marker:hover::after {
+    width: 3px;
+    height: 18px;
   }
 </style>
 </head>
@@ -51,6 +72,10 @@
       marker.className = "marker";
       marker.style.left = `${pct}%`;
       marker.title = bm.label;
+      marker.dataset.clickable = "";
+      marker.addEventListener("click", () => {
+        iina.postMessage("jump", { time: bm.time });
+      });
       track.appendChild(marker);
     });
   });

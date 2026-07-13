@@ -140,6 +140,10 @@ try {
 // Fires once the overlay webview has finished loading (overlay.show is a
 // silent no-op before that point).
 event.on("iina.plugin-overlay-loaded", () => {
+  // onMessage/setClickable are silent no-ops before the overlay view exists,
+  // so both must be wired here rather than at eval time.
+  overlay.setClickable(true);
+  overlay.onMessage("jump", ({ time }) => jumpTo(time));
   overlay.show();
   pushAll();
 });
