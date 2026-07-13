@@ -1,13 +1,4 @@
-const { core, mpv, input, preferences, sidebar, event } = iina;
-
-// Sidebar must load first — overlay is optional and isolated so any error there
-// cannot block the sidebar from running.
-sidebar.loadFile("sidebar.html");
-
-let overlay = null;
-try {
-  overlay = iina.overlay;
-} catch (_) {}
+const { core, mpv, input, preferences, sidebar, overlay, event } = iina;
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -51,7 +42,7 @@ function pushAll() {
   const bookmarks = getBookmarksForCurrent();
   const duration = core.status.duration;
   sidebar.postMessage("update", { bookmarks });
-  if (overlay) overlay.postMessage("update", { bookmarks, duration });
+  overlay.postMessage("update", { bookmarks, duration });
 }
 
 // ─── Actions ──────────────────────────────────────────────────────────────────
@@ -119,31 +110,38 @@ for (let i = 1; i <= 9; i++) {
   });
 }
 
-// ─── Events ───────────────────────────────────────────────────────────────────
+// ─── Web views ────────────────────────────────────────────────────────────────
 
-// On restart the window isn't ready when main.js first runs, so loadFile at
-// the top of the file is a no-op. Re-call it here once the window is ready.
-event.on("iina.window-loaded", () => {
+// loadFile throws if the window isn't loaded yet, and it also clears every
+// onMessage listener registered on that view — so listeners must be
+// (re)registered after each loadFile call, never before.
+function bootViews() {
   sidebar.loadFile("sidebar.html");
+
+  sidebar.onMessage("ready", () => pushAll());
+  sidebar.onMessage("add", () => addBookmark());
+  sidebar.onMessage("delete", ({ id }) => deleteBookmark(id));
+  sidebar.onMessage("jump", ({ time }) => jumpTo(time));
+  sidebar.onMessage("rename", ({ id, label }) => renameBookmark(id, label));
+
+  overlay.loadFile("overlay.html");
+}
+
+event.on("iina.window-loaded", bootViews);
+
+// When the plugin is reloaded during development the window is already loaded,
+// so iina.window-loaded will never fire again — boot immediately in that case.
+// On a normal launch the window isn't ready yet and loadFile throws; the catch
+// swallows it and the event handler above does the real boot.
+try {
+  bootViews();
+} catch (_) {}
+
+// Fires once the overlay webview has finished loading (overlay.show is a
+// silent no-op before that point).
+event.on("iina.plugin-overlay-loaded", () => {
+  overlay.show();
   pushAll();
 });
 
 event.on("iina.file-loaded", () => pushAll());
-
-// ─── Sidebar messages ─────────────────────────────────────────────────────────
-
-sidebar.onMessage("ready", () => pushAll());
-sidebar.onMessage("add", () => addBookmark());
-sidebar.onMessage("delete", ({ id }) => deleteBookmark(id));
-sidebar.onMessage("jump", ({ time }) => jumpTo(time));
-sidebar.onMessage("rename", ({ id, label }) => renameBookmark(id, label));
-
-// ─── Overlay boot (optional) ──────────────────────────────────────────────────
-
-try {
-  if (overlay) {
-    overlay.onMessage("ready", () => pushAll());
-    overlay.loadFile("overlay.html");
-    overlay.show();
-  }
-} catch (_) {}

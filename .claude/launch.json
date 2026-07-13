@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "sidebar-preview",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", "Bookmarks.iinaplugin", "-l", "5500", "--no-clipboard"],
+      "port": 5500
+    }
+  ]
+}
