@@ -6,7 +6,7 @@ Bookmark moments in a video and jump back to them instantly — via keyboard sho
 
 - Press **`b`** to drop a bookmark at the current playback position (auto-labelled with the timestamp)
 - Press **`1`–`9`** to jump to the 1st–9th bookmark for the current file
-- Press **`n`** to cycle through bookmarks (jumps to the next one after the current position, wrapping back to the first)
+- Press **`n`** / **`Shift+n`** to cycle forward / backward through bookmarks (position-based, wrapping around at either end)
 - Sidebar panel lists all bookmarks with timestamps and labels
 - Click any bookmark in the sidebar to seek to it
 - Double-click a label (or click the pencil icon) to rename it inline
@@ -27,7 +27,7 @@ Bookmark moments in a video and jump back to them instantly — via keyboard sho
 |---|---|
 | Add bookmark | Press `b` while playing, or click **Add** in the sidebar |
 | Jump to bookmark | Press `1`–`9`, or click the bookmark in the sidebar |
-| Cycle bookmarks | Press `n` — next bookmark after the current position, wrapping to the first |
+| Cycle bookmarks | Press `n` (forward) or `Shift+n` (backward) — relative to the current position, wrapping around |
 | Rename | Double-click the label in the sidebar |
 | Delete | Hover the bookmark and click the trash icon |
 

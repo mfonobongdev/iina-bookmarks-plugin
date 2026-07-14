@@ -116,6 +116,20 @@ input.onKeyDown("n", () => {
   return true;
 });
 
+// Backwards cycle: jump to the closest bookmark before the current position,
+// wrapping to the last bookmark when there's none behind. The 0.5s margin
+// keeps a just-jumped-to bookmark from matching itself.
+input.onKeyDown("Shift+n", () => {
+  const bookmarks = getBookmarksForCurrent();
+  if (bookmarks.length === 0) return true;
+  const pos = mpv.getNumber("time-pos") || 0;
+  const behind = bookmarks.filter((b) => b.time < pos - 0.5);
+  const prev = behind.length > 0 ? behind[behind.length - 1] : bookmarks[bookmarks.length - 1];
+  jumpTo(prev.time);
+  core.osd(`← ${prev.label}`);
+  return true;
+});
+
 for (let i = 1; i <= 9; i++) {
   input.onKeyDown(String(i), () => {
     const bm = getBookmarksForCurrent()[i - 1];
